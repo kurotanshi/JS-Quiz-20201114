@@ -225,12 +225,13 @@
 <script type="text/javascript" src="scripts/jquery-3.1.0.js"></script>
 <script type="text/javascript">
 const box=[]
+//產生球球
 for(i=1;i<50;i++){
 var b =`<div class='card-box'>${i}</div>`;
 
 $('main').append($(b));
 }
-
+//輸入使用者名稱
 let inputName;
 $(window).ready(setTimeout(getName,500))
 function getName(){
@@ -250,7 +251,6 @@ $('.card-box').click(
       $(this).addClass('selectgreen')
     }
   }
-
     )
   
 
@@ -258,7 +258,7 @@ $('.card-box').click(
 $('.create').click(
  
   function(e){
-    let resultNums=[]
+  let resultNums=[]
 
   //檢查使用者是否按太少
   $('h2.info').text('')
