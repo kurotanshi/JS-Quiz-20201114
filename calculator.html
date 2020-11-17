@@ -17,7 +17,7 @@
 
     #result {
       width: 400px;
-      height: 56px;
+      /* height: 56px; */
       margin-bottom: 10px;
       border-width: 1px;
       border-style: solid;
@@ -26,6 +26,7 @@
       font-family: sans-serif;
       font-size: 54px;
       color: #3c3c3c;
+      word-wrap:break-word;
     }
 
     .row-btn {
@@ -77,33 +78,33 @@
 
       <div class="row-btn">
         <button id="ac">AC</button>
-        <button class="operator">÷</button>
+        <button class="operator" id="division">÷</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">7</button>
-        <button class="nums">8</button>
-        <button class="nums">9</button>
-        <button class="operator">×</button>
+        <button class="nums" id="seven">7</button>
+        <button class="nums" id="eight">8</button>
+        <button class="nums" id="nine">9</button>
+        <button class="operator" id="multiply">×</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">4</button>
-        <button class="nums">5</button>
-        <button class="nums">6</button>
-        <button class="operator">-</button>
+        <button class="nums" id="four">4</button>
+        <button class="nums" id="five">5</button>
+        <button class="nums" id="six">6</button>
+        <button class="operator" id="minus">-</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">1</button>
-        <button class="nums">2</button>
-        <button class="nums">3</button>
-        <button class="operator">+</button>
+        <button class="nums" id="one">1</button>
+        <button class="nums" id="two">2</button>
+        <button class="nums" id="three">3</button>
+        <button class="operator" id="add">+</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">0</button>
-        <button class="nums">.</button>
+        <button class="nums" id="zero">0</button>
+        <button class="nums" id="dot">.</button>
         <button id="equal">=</button>
       </div>
 
@@ -115,6 +116,261 @@
     /*
       試著完成計算機功能，讓它可以做到簡單的四則運算。
     */
+    var isResult = false;
+    //輸入畫面的數值
+    var resultArr = [];
+    resultArr.push('0');
+    //運算符號和點
+    var notNumArr = [];
+
+    $('.nums').on('click', function(){
+
+        if($(this).text() !== '.' && resultArr.length == 1 && resultArr[0] === '0')
+        {
+            $('#result').text(''); 
+            resultArr.pop();
+        }
+
+        if(isResult && resultArr.length == 1)
+        {
+            $('#result').text(''); 
+            resultArr.pop();
+            if($(this).text() === '.')
+            {
+                $('#result').text('0'); 
+                resultArr.push('0');
+            }
+            notNumArr = [];
+        }
+
+        isResult = false;
+
+        var canAddDot = true;
+        if($(this).text() === '.')
+        {
+          if(isNaN(Number(resultArr[resultArr.length-1])))
+          {
+            canAddDot = false;
+          }
+          else if(notNumArr.length > 0 && notNumArr[notNumArr.length -1] === '.')
+          {
+            canAddDot = false;
+          }
+        }
+
+        if(($(this).text() !== '.') || ($(this).text() === '.' && canAddDot))
+        {
+            resultArr.push($(this).text());
+            $('#result').append($(this).text());
+
+            if($(this).text() === '.')
+            {
+              notNumArr.push($(this).text());
+            }
+        }
+    });
+
+    $('.operator').on('click', function(){
+        
+        if($('.operator').text().includes(resultArr[resultArr.length-1]))
+        {
+            resultArr.pop();
+            resultArr.push($(this).text());
+            notNumArr.pop();
+            notNumArr.push($(this).text());
+            $('#result').text('');
+            resultArr.forEach(function(el, idx){
+                $('#result').append(el);
+            });
+        }
+        else if(resultArr[resultArr.length-1] !== '.')
+        {
+            resultArr.push($(this).text());
+            notNumArr.push($(this).text());
+            $('#result').append($(this).text());
+        }  
+    });
+
+    $('#ac').on('click', function(){
+        resultArr = [];
+        resultArr.push('0');
+        $('#result').text(0);
+        notNumArr = [];
+    });
+
+    $('#equal').on('click', function(){
+        
+        var filterArr = resultArr.filter(function(el, idx, arr){
+            return $('.operator').text().includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            //如果目前輸入的值最後一位是運算符號就移除
+            if($('.operator').text().includes(resultArr[resultArr.length-1]))
+            {
+                resultArr.pop();
+            }
+
+            var resultStr = '';
+            resultArr.forEach(function(el, idx){
+                switch(el)
+                {
+                    case '×':
+                        resultStr = resultStr + '*';
+                        break;
+                    case '÷':
+                        resultStr = resultStr + '/';
+                        break;
+                    default:
+                        resultStr = resultStr + el;
+                        break;
+                }       
+            });
+            var result = parseFloat((eval(resultStr)).toFixed(10));
+            $('#result').text(result);
+            resultArr = [];
+            if(result === Infinity || result === -Infinity)
+            {
+                resultArr.push('0');
+            }
+            else
+            {
+                resultArr.push(result.toString());
+            }
+            isResult = true;
+        }
+    });
+
+    //鍵盤處理數字與運算符號
+    window.addEventListener("keyup", event => {
+
+        $("button").blur();
+
+        //只處理特定code
+        var code = ['Equal', 'Minus', 'Slash', 'Period', 'Digit', 'Enter', 'Numpad']
+        var filterArr = code.filter(function(el, idx, arr){
+            return event.code.includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            var keyCode = event.keyCode;
+            switch(keyCode)
+            {
+                case 48:
+                case 96:
+                    $('#zero').click();
+                    break;
+                case 49:
+                case 97:
+                    $('#one').click();
+                    break;
+                case 50:
+                case 98:
+                    $('#two').click();
+                    break;
+                case 51:
+                case 99:
+                    $('#three').click();
+                    break;
+                case 52:
+                case 100:
+                    $('#four').click();
+                    break;
+                case 53:
+                case 101:
+                    $('#five').click();
+                    break;
+                case 54:
+                case 102:
+                    $('#six').click();
+                    break;
+                case 55:
+                case 103:
+                    $('#seven').click();
+                    break;
+                case 56:
+                    if(event.shiftKey)
+                    {
+                      $('#multiply').click();
+                    }
+                    else
+                    {
+                      $('#eight').click();
+                    }
+                    break;
+                case 104:
+                    $('#eight').click();
+                    break;
+                case 57:
+                case 105:
+                    $('#nine').click();
+                    break;
+                case 43:
+                case 107:
+                    $('#add').click();
+                    break;
+                case 45:
+                case 109:
+                case 189:
+                    $('#minus').click();
+                    break;
+                case 42:
+                case 106:
+                    $('#multiply').click();
+                    break;
+                case 47:
+                case 111:
+                case 191:
+                    $('#division').click();
+                    break;
+                case 46:
+                case 110:
+                    $('#dot').click();
+                    break;
+                case 61:
+                case 108:
+                case 13:
+                    $('#equal').click();
+                    break;
+                case 187:
+                    if(event.shiftKey)
+                    {
+                      $('#add').click();
+                    }
+                    else
+                    {
+                      $('#equal').click();
+                    }
+                    break;
+            }
+        }
+    });
+
+    //鍵盤處理AC功能(ESC與Del)
+    window.addEventListener("keydown", event => {
+
+        $("button").blur();
+
+        //只處理特定code
+        var code = ['Escape', 'Delete']
+        var filterArr = code.filter(function(el, idx, arr){
+            return event.code.includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            var keyCode = event.keyCode;
+            switch(keyCode)
+            {
+                case 27:
+                case 46:
+                    $('#ac').click();
+                    break;
+            }
+        }
+    });
 
   </script>
 
