@@ -46,7 +46,7 @@
       color: #333;
     }
 
-    .lottery-result span span{
+    .lottery-result span span, .lottery-prizeNumber span span{
         display: inline-block;
         width: 30px;
         height: 30px;
@@ -57,7 +57,15 @@
         border-radius: 25px;
         margin-left: 5px;
         margin-right: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
         font-size: 26px;
+    }
+
+    .lottery-prizeNumber span span{  
+        border: 1px solid gray;   
+        background: blue;
+        color: #fff;
     }
   </style>
 </head>
@@ -67,6 +75,7 @@
 
     <div class="lottery-nums"></div>
     <div class="lottery-result">開獎號碼: <span></span></div>
+    <div class="lottery-prizeNumber" style="display: none;">中獎號碼: <span></span></div>
 
     <p>
       <button class="btn-lottery">兌獎</button>
@@ -119,11 +128,12 @@
 
   // 重設按鈕
   $('.reset').on('click', function(){
-    $('.lottery-nums div').removeClass('selected');
-    $('.lottery-nums div').removeClass('highlight');
+    $('.lottery-nums div').removeClass('selected highlight');
     $('.lottery-nums div').off('click');
     $('.lottery-nums div').on('click', ckickNumEvent);
     $(".lottery-result > span").empty();
+    $(".lottery-prizeNumber > span").empty();
+    $(".lottery-prizeNumber").hide();
     $('.btn-lottery').attr('disabled', false);
   });
 
@@ -144,9 +154,7 @@
                 [lottery[idx], lottery[random]] = [lottery[random], lottery[idx]]
             });
 
-            var lotteryResult = lottery.filter(function(el, idx, array){
-              return idx < 6;
-            });
+            var lotteryResult = lottery.splice(0, 6);
 
             lotteryResult.sort(function(a, b){
                 return a - b;
@@ -155,10 +163,18 @@
             for(i = 0; i < 6; i++)
             {
                 var value = Number(lotteryResult[i]);
-                $(".lottery-result > span").append(`<span class=''>${value}</span>`);
+                $(".lottery-result > span").append(`<span>${value}</span>`);
                 $(".lottery-nums div").eq(value - 1).addClass("highlight");
             }
 
+            $('.selected.highlight').each(function(idx, el){
+                $(".lottery-prizeNumber > span").append(`<span>${$(el).text()}</span>`);
+            });
+
+            if($(".lottery-prizeNumber > span > span").length > 0)
+            {
+              $(".lottery-prizeNumber").show();
+            }           
             $('.lottery-nums div').off('click');
             $('.btn-lottery').attr('disabled', true);
         }
