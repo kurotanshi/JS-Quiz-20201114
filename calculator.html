@@ -125,7 +125,8 @@
 
     $('.nums').on('click', function(){
 
-        if($(this).text() !== '.' && resultArr.length == 1 && resultArr[0] === '0')
+        var text = $(this).text();
+        if(text !== '.' && resultArr.length == 1 && resultArr[0] === '0')
         {
             $('#result').text(''); 
             resultArr.pop();
@@ -135,7 +136,7 @@
         {
             $('#result').text(''); 
             resultArr.pop();
-            if($(this).text() === '.')
+            if(text === '.')
             {
                 $('#result').text('0'); 
                 resultArr.push('0');
@@ -146,9 +147,9 @@
         isResult = false;
 
         var canAddDot = true;
-        if($(this).text() === '.')
+        if(text === '.')
         {
-          if(isNaN(Number(resultArr[resultArr.length-1])))
+          if(isNaN(resultArr[resultArr.length-1]))
           {
             canAddDot = false;
           }
@@ -158,26 +159,27 @@
           }
         }
 
-        if(($(this).text() !== '.') || ($(this).text() === '.' && canAddDot))
+        if((text !== '.') || (text === '.' && canAddDot))
         {
-            resultArr.push($(this).text());
-            $('#result').append($(this).text());
+            resultArr.push(text);
+            $('#result').append(text);
 
-            if($(this).text() === '.')
+            if(text === '.')
             {
-              notNumArr.push($(this).text());
+              notNumArr.push(text);
             }
         }
     });
 
     $('.operator').on('click', function(){
         
+        var text = $(this).text();
         if($('.operator').text().includes(resultArr[resultArr.length-1]))
         {
             resultArr.pop();
-            resultArr.push($(this).text());
+            resultArr.push(text);
             notNumArr.pop();
-            notNumArr.push($(this).text());
+            notNumArr.push(text);
             $('#result').text('');
             resultArr.forEach(function(el, idx){
                 $('#result').append(el);
@@ -185,9 +187,9 @@
         }
         else if(resultArr[resultArr.length-1] !== '.')
         {
-            resultArr.push($(this).text());
-            notNumArr.push($(this).text());
-            $('#result').append($(this).text());
+            resultArr.push(text);
+            notNumArr.push(text);
+            $('#result').append(text);
         }  
     });
 
@@ -227,8 +229,13 @@
                         break;
                 }       
             });
-            var result = parseFloat((eval(resultStr)).toFixed(10));
-            $('#result').text(result);
+
+            //var result = parseFloat((eval(resultStr)).toFixed(10));
+            var calculationArr = resultStr.split(/(\+|-|\*|\/)/); 
+            var result = Calculate(calculationArr, ['*', '/']);
+            result = Calculate(result, ['+', '-']);    
+            //result最後會變成只剩一個長度的陣列且值是最終運算結果，所以只取result[0]
+            $('#result').text(result[0]);
             resultArr = [];
             if(result === Infinity || result === -Infinity)
             {
@@ -255,94 +262,57 @@
 
         if(filterArr.length > 0)
         {
-            var keyCode = event.keyCode;
-            switch(keyCode)
+            var key = event.key;
+            switch(key)
             {
-                case 48:
-                case 96:
+                case "0":
                     $('#zero').click();
                     break;
-                case 49:
-                case 97:
+                case "1":
                     $('#one').click();
                     break;
-                case 50:
-                case 98:
+                case "2":
                     $('#two').click();
                     break;
-                case 51:
-                case 99:
+                case "3":
                     $('#three').click();
                     break;
-                case 52:
-                case 100:
+                case "4":
                     $('#four').click();
                     break;
-                case 53:
-                case 101:
+                case "5":
                     $('#five').click();
                     break;
-                case 54:
-                case 102:
+                case "6":
                     $('#six').click();
                     break;
-                case 55:
-                case 103:
+                case "7":
                     $('#seven').click();
                     break;
-                case 56:
-                    if(event.shiftKey)
-                    {
-                      $('#multiply').click();
-                    }
-                    else
-                    {
-                      $('#eight').click();
-                    }
-                    break;
-                case 104:
+                case "8":
                     $('#eight').click();
                     break;
-                case 57:
-                case 105:
+                case "9":
                     $('#nine').click();
                     break;
-                case 43:
-                case 107:
+                case "+":
                     $('#add').click();
                     break;
-                case 45:
-                case 109:
-                case 189:
+                case "-":
                     $('#minus').click();
                     break;
-                case 42:
-                case 106:
+                case "*":
                     $('#multiply').click();
                     break;
-                case 47:
-                case 111:
-                case 191:
+                case "/":
                     $('#division').click();
                     break;
-                case 46:
-                case 110:
+                case ".":
                     $('#dot').click();
                     break;
-                case 61:
-                case 108:
-                case 13:
+                case "=":
+                case "Enter":
                     $('#equal').click();
-                    break;
-                case 187:
-                    if(event.shiftKey)
-                    {
-                      $('#add').click();
-                    }
-                    else
-                    {
-                      $('#equal').click();
-                    }
                     break;
             }
         }
@@ -361,16 +331,52 @@
 
         if(filterArr.length > 0)
         {
-            var keyCode = event.keyCode;
-            switch(keyCode)
+            var key = event.key;
+            switch(key)
             {
-                case 27:
-                case 46:
+                case "Escape":
+                case "Delete":
                     $('#ac').click();
                     break;
             }
         }
     });
+
+    function Calculate(arr, operatorArr)
+    {
+      var newArr = [];
+
+      for (var index = 0; index < arr.length; index++) {
+        var value = arr[index];
+        if(operatorArr.includes(value))
+        {
+          var lastValue = parseFloat(newArr[newArr.length-1]);
+          newArr.pop();
+          switch(value)
+          {
+             case "+":
+                newArr.push(parseFloat((lastValue + parseFloat(arr[index+1])).toFixed(10)).toString());
+                break;
+              case "-":
+                newArr.push(parseFloat((lastValue - arr[index+1]).toFixed(10)).toString());
+                break;
+              case "*":
+                newArr.push(parseFloat((lastValue * arr[index+1]).toFixed(10)).toString());
+                break;
+              case "/":
+                newArr.push(parseFloat((lastValue / arr[index+1]).toFixed(10)).toString());
+                break;
+          }
+          index = index + 1;
+        }
+        else
+        {
+          newArr.push(value);
+        }
+      }
+      
+      return newArr; 
+    }
 
   </script>
 
