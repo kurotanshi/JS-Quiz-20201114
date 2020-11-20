@@ -48,7 +48,10 @@
   for(i = 1; i < 50; i++ ){
     $('.lottery-nums').append('<div>' + i + '</div>');
   }
-
+	  
+  let select = [];
+  let result = [];
+	  
   // 1. 為數字按鈕加入事件
   $('.lottery-nums div').on('click', function(){
 	  let num = Number($(this).text());
