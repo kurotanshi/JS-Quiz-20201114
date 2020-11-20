@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculator</title>
+  <title>Calculator - Zoe Huang</title>
   <style>
     .wrapper {
       width: 400px;
@@ -16,6 +16,7 @@
     }
 
     #result {
+      overflow: scroll;
       width: 400px;
       height: 56px;
       margin-bottom: 10px;
@@ -26,6 +27,7 @@
       font-family: sans-serif;
       font-size: 54px;
       color: #3c3c3c;
+      line-height: 100%;
     }
 
     .row-btn {
@@ -103,18 +105,164 @@
 
       <div class="row-btn">
         <button class="nums">0</button>
-        <button class="nums">.</button>
+        <button class="nums dot">.</button>
         <button id="equal">=</button>
       </div>
 
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
   <script>
-    /*
-      試著完成計算機功能，讓它可以做到簡單的四則運算。
-    */
+    let preNum = 0;
+    let nextNum = 0;
+    let currNum = 0;
+    let result = 0;
+    let operator = null;
+
+    // 紀錄小數點是否被按過
+    // counter想要拿來當作條件篩選，
+    let dotCounter = 0;
+    // let numCounter = null;
+    let resultCounter = null;
+    // let opCounter = 0;
+
+
+    // 重設小數點 - tbd 重新綁定事件功能需討論，小數點先不使用
+    function resetDot() {
+      dotCounter = 0;
+      // $('.dot').on("click", getNum);
+    }
+
+
+    // 取得數字
+    function getNum(e) {
+      console.log(' --- 數字鍵 ----');
+
+      currNum += $(e.target).text();
+
+      // 紀錄小數點
+      if ($(e.target).text() === '.') {
+        dotCounter++;
+      } 
+
+      // 檢查小數點
+      // if(dotCounter > 1) {
+      //   // $('.dot').off("click", getNum);
+      // }
+      // if(dotCounter > 2 && $(e.target).text() === '.') {
+      //   // currNum = currNum;
+      //   console.log('== 兩次小數點 ==');
+      // }
+
+      currNum = parseFloat(currNum);
+
+      // 印出輸入的數字
+      $('#result').text(currNum);
+
+      // numCounter++;
+      // console.log(e.target);
+      // console.log(`dotCounter: ${dotCounter}`);
+      console.log(`currNum: ${parseFloat(currNum)}`);
+    };
+
+
+    // 進行運算
+    function getResult() {
+      switch (operator) {
+        case '÷':
+          result = preNum / nextNum;
+          console.log(`${preNum} ÷ ${nextNum}`);
+          break;
+        case '×':
+          result = preNum * nextNum;
+          console.log(`${preNum} x ${nextNum}`);
+          break;
+        case '-':
+          result = preNum - nextNum;
+          console.log(`${preNum} - ${nextNum}`);
+          break;
+        case '+':
+          result = preNum + nextNum;
+          console.log(`${preNum} + ${nextNum}`);
+          break;
+        default:
+          result = preNum;
+          console.log('$$$' + preNum);
+          break;
+      }
+
+      preNum = result;
+      // currNum = 0;
+      // numCounter = null;
+
+      $('#result').text(result);
+      console.log(`獲得結果 currNum: ${currNum}, preNum: ${preNum}, operator: ${operator}, nextNum: ${nextNum}, result: ${result}`);
+    }
+
+
+    // 數字和小數點按鈕
+    $('.nums').on('click', getNum);
+
+
+    // 加減乘除按鈕
+    $('.operator').on('click', function(e) {
+      console.log(' --- 運算鍵 ----');
+      
+      // 沒按過加減乘除 和 等於
+      if(operator === null && resultCounter === null) {
+        preNum = currNum;
+        currNum = 0;
+        console.log(`先按數字運算 currNum: ${currNum}, preNum: ${preNum}, operator: ${operator}, nextNum: ${nextNum}, result: ${result}`);
+
+      } else {
+        nextNum = currNum;
+        getResult();
+
+        console.log(`運算 currNum: ${currNum}, preNum: ${preNum}, operator: ${operator}, nextNum: ${nextNum}, result: ${result}`);
+      }
+
+      operator = $(e.target).text();
+      currNum = 0;
+      resetDot();
+    });
+
+
+    // 等於按鈕
+    $('#equal').on('click', function() {
+      console.log(' --- 等於鍵 ----');
+  
+      nextNum = currNum;
+
+      getResult();
+      currNum = 0;
+      nextNum = 0;
+      result = 0;
+      // numCounter = null;
+      operator = null;
+      resultCounter++;
+
+      resetDot();
+      console.log(`等於 currNum: ${currNum}, preNum: ${preNum}, operator: ${operator}, nextNum: ${nextNum}, result: ${result}`);
+    });
+
+
+    // 重設按鈕
+    $('#ac').on('click', function() {
+      console.log(' --- AC鍵 ----');
+
+      currNum = 0;
+      preNum = 0;
+      nextNum = 0;
+      result = 0;
+      // numCounter = null;
+      operator = null;
+      resultCounter = null;
+
+      resetDot();
+      $('#result').text(result);
+      console.log(`清空 currNum: ${currNum}, preNum: ${preNum}, operator: ${operator}, nextNum: ${nextNum}, result: ${result}`);
+    });
 
   </script>
 
