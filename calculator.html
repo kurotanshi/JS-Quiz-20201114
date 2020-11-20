@@ -253,6 +253,26 @@
     window.addEventListener("keyup", event => {
 
         $("button").blur();
+      
+        var keyMap = {
+          '0': 'zero',
+          '1': 'one',
+          '2': 'two',
+          '3': 'three',
+          '4': 'four',
+          '5': 'five',
+          '6': 'six',
+          '7': 'seven',
+          '8': 'eight',
+          '9': 'nine',
+          '+': 'add',
+          '-': 'minus',
+          '*': 'multiply',
+          '/': 'division',
+          '.': 'dot',
+          '=': 'equal',
+          'Enter': 'equal'
+        };
 
         //只處理特定code
         var code = ['Equal', 'Minus', 'Slash', 'Period', 'Digit', 'Enter', 'Numpad']
@@ -263,57 +283,8 @@
         if(filterArr.length > 0)
         {
             var key = event.key;
-            switch(key)
-            {
-                case "0":
-                    $('#zero').click();
-                    break;
-                case "1":
-                    $('#one').click();
-                    break;
-                case "2":
-                    $('#two').click();
-                    break;
-                case "3":
-                    $('#three').click();
-                    break;
-                case "4":
-                    $('#four').click();
-                    break;
-                case "5":
-                    $('#five').click();
-                    break;
-                case "6":
-                    $('#six').click();
-                    break;
-                case "7":
-                    $('#seven').click();
-                    break;
-                case "8":
-                    $('#eight').click();
-                    break;
-                case "9":
-                    $('#nine').click();
-                    break;
-                case "+":
-                    $('#add').click();
-                    break;
-                case "-":
-                    $('#minus').click();
-                    break;
-                case "*":
-                    $('#multiply').click();
-                    break;
-                case "/":
-                    $('#division').click();
-                    break;
-                case ".":
-                    $('#dot').click();
-                    break;
-                case "=":
-                case "Enter":
-                    $('#equal').click();
-                    break;
+            if(key in keyMap) {
+              $(`#${keyMap[key]}`).click();
             }
         }
     });
@@ -322,6 +293,11 @@
     window.addEventListener("keydown", event => {
 
         $("button").blur();
+      
+        var keyMap = {
+          'Escape': 'ac',
+          'Delete': 'ac'
+        };
 
         //只處理特定code
         var code = ['Escape', 'Delete']
@@ -332,12 +308,8 @@
         if(filterArr.length > 0)
         {
             var key = event.key;
-            switch(key)
-            {
-                case "Escape":
-                case "Delete":
-                    $('#ac').click();
-                    break;
+            if(key in keyMap) {
+              $(`#${keyMap[key]}`).click();
             }
         }
     });
