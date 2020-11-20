@@ -17,7 +17,7 @@
 
     #result {
       width: 400px;
-      height: 56px;
+      /* height: 56px; */
       margin-bottom: 10px;
       border-width: 1px;
       border-style: solid;
@@ -26,6 +26,7 @@
       font-family: sans-serif;
       font-size: 54px;
       color: #3c3c3c;
+      word-wrap:break-word;
     }
 
     .row-btn {
@@ -77,33 +78,33 @@
 
       <div class="row-btn">
         <button id="ac">AC</button>
-        <button class="operator">÷</button>
+        <button class="operator" id="division">÷</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">7</button>
-        <button class="nums">8</button>
-        <button class="nums">9</button>
-        <button class="operator">×</button>
+        <button class="nums" id="seven">7</button>
+        <button class="nums" id="eight">8</button>
+        <button class="nums" id="nine">9</button>
+        <button class="operator" id="multiply">×</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">4</button>
-        <button class="nums">5</button>
-        <button class="nums">6</button>
-        <button class="operator">-</button>
+        <button class="nums" id="four">4</button>
+        <button class="nums" id="five">5</button>
+        <button class="nums" id="six">6</button>
+        <button class="operator" id="minus">-</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">1</button>
-        <button class="nums">2</button>
-        <button class="nums">3</button>
-        <button class="operator">+</button>
+        <button class="nums" id="one">1</button>
+        <button class="nums" id="two">2</button>
+        <button class="nums" id="three">3</button>
+        <button class="operator" id="add">+</button>
       </div>
 
       <div class="row-btn">
-        <button class="nums">0</button>
-        <button class="nums">.</button>
+        <button class="nums" id="zero">0</button>
+        <button class="nums" id="dot">.</button>
         <button id="equal">=</button>
       </div>
 
@@ -115,6 +116,239 @@
     /*
       試著完成計算機功能，讓它可以做到簡單的四則運算。
     */
+    var isResult = false;
+    //輸入畫面的數值
+    var resultArr = [];
+    resultArr.push('0');
+    //運算符號和點
+    var notNumArr = [];
+
+    $('.nums').on('click', function(){
+
+        var text = $(this).text();
+        if(text !== '.' && resultArr.length == 1 && resultArr[0] === '0')
+        {
+            $('#result').text(''); 
+            resultArr.pop();
+        }
+
+        if(isResult && resultArr.length == 1)
+        {
+            $('#result').text(''); 
+            resultArr.pop();
+            if(text === '.')
+            {
+                $('#result').text('0'); 
+                resultArr.push('0');
+            }
+            notNumArr = [];
+        }
+
+        isResult = false;
+
+        var canAddDot = true;
+        if(text === '.')
+        {
+          if(isNaN(resultArr[resultArr.length-1]))
+          {
+            canAddDot = false;
+          }
+          else if(notNumArr.length > 0 && notNumArr[notNumArr.length -1] === '.')
+          {
+            canAddDot = false;
+          }
+        }
+
+        if((text !== '.') || (text === '.' && canAddDot))
+        {
+            resultArr.push(text);
+            $('#result').append(text);
+
+            if(text === '.')
+            {
+              notNumArr.push(text);
+            }
+        }
+    });
+
+    $('.operator').on('click', function(){
+        
+        var text = $(this).text();
+        if($('.operator').text().includes(resultArr[resultArr.length-1]))
+        {
+            resultArr.pop();
+            resultArr.push(text);
+            notNumArr.pop();
+            notNumArr.push(text);
+            $('#result').text('');
+            resultArr.forEach(function(el, idx){
+                $('#result').append(el);
+            });
+        }
+        else if(resultArr[resultArr.length-1] !== '.')
+        {
+            resultArr.push(text);
+            notNumArr.push(text);
+            $('#result').append(text);
+        }  
+    });
+
+    $('#ac').on('click', function(){
+        resultArr = [];
+        resultArr.push('0');
+        $('#result').text(0);
+        notNumArr = [];
+    });
+
+    $('#equal').on('click', function(){
+        
+        var filterArr = resultArr.filter(function(el, idx, arr){
+            return $('.operator').text().includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            //如果目前輸入的值最後一位是運算符號就移除
+            if($('.operator').text().includes(resultArr[resultArr.length-1]))
+            {
+                resultArr.pop();
+            }
+
+            var resultStr = '';
+            resultArr.forEach(function(el, idx){
+                switch(el)
+                {
+                    case '×':
+                        resultStr = resultStr + '*';
+                        break;
+                    case '÷':
+                        resultStr = resultStr + '/';
+                        break;
+                    default:
+                        resultStr = resultStr + el;
+                        break;
+                }       
+            });
+
+            //var result = parseFloat((eval(resultStr)).toFixed(10));
+            var calculationArr = resultStr.split(/(\+|-|\*|\/)/); 
+            var result = Calculate(calculationArr, ['*', '/']);
+            result = Calculate(result, ['+', '-']);    
+            //result最後會變成只剩一個長度的陣列且值是最終運算結果，所以只取result[0]
+            $('#result').text(result[0]);
+            resultArr = [];
+            if(result === Infinity || result === -Infinity)
+            {
+                resultArr.push('0');
+            }
+            else
+            {
+                resultArr.push(result.toString());
+            }
+            isResult = true;
+        }
+    });
+
+    //鍵盤處理數字與運算符號
+    window.addEventListener("keyup", event => {
+
+        $("button").blur();
+      
+        var keyMap = {
+          '0': 'zero',
+          '1': 'one',
+          '2': 'two',
+          '3': 'three',
+          '4': 'four',
+          '5': 'five',
+          '6': 'six',
+          '7': 'seven',
+          '8': 'eight',
+          '9': 'nine',
+          '+': 'add',
+          '-': 'minus',
+          '*': 'multiply',
+          '/': 'division',
+          '.': 'dot',
+          '=': 'equal',
+          'Enter': 'equal'
+        };
+
+        //只處理特定code
+        var code = ['Equal', 'Minus', 'Slash', 'Period', 'Digit', 'Enter', 'Numpad']
+        var filterArr = code.filter(function(el, idx, arr){
+            return event.code.includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            var key = event.key;
+            if(key in keyMap) {
+              $(`#${keyMap[key]}`).click();
+            }
+        }
+    });
+
+    //鍵盤處理AC功能(ESC與Del)
+    window.addEventListener("keydown", event => {
+
+        $("button").blur();
+      
+        var keyMap = {
+          'Escape': 'ac',
+          'Delete': 'ac'
+        };
+
+        //只處理特定code
+        var code = ['Escape', 'Delete']
+        var filterArr = code.filter(function(el, idx, arr){
+            return event.code.includes(el);
+        });
+
+        if(filterArr.length > 0)
+        {
+            var key = event.key;
+            if(key in keyMap) {
+              $(`#${keyMap[key]}`).click();
+            }
+        }
+    });
+
+    function Calculate(arr, operatorArr)
+    {
+      var newArr = [];
+
+      for (var index = 0; index < arr.length; index++) {
+        var value = arr[index];
+        if(operatorArr.includes(value))
+        {
+          var lastValue = parseFloat(newArr[newArr.length-1]);
+          newArr.pop();
+          switch(value)
+          {
+             case "+":
+                newArr.push(parseFloat((lastValue + parseFloat(arr[index+1])).toFixed(10)).toString());
+                break;
+              case "-":
+                newArr.push(parseFloat((lastValue - arr[index+1]).toFixed(10)).toString());
+                break;
+              case "*":
+                newArr.push(parseFloat((lastValue * arr[index+1]).toFixed(10)).toString());
+                break;
+              case "/":
+                newArr.push(parseFloat((lastValue / arr[index+1]).toFixed(10)).toString());
+                break;
+          }
+          index = index + 1;
+        }
+        else
+        {
+          newArr.push(value);
+        }
+      }
+      
+      return newArr; 
+    }
 
   </script>
 
