@@ -4,56 +4,27 @@
   <meta charset="utf-8">
   <title>五倍樂透手動選號機</title>
   <style type="text/css">
-    .wrap{
-      padding: 1em;
-    }
-    button{
-      font-size: 22px;
-    }
-    .lottery-nums{
-      overflow: hidden;
-      width: 600px;
-    }
-
-    .lottery-nums > div{
-      display: block; float: left;
-      width: 25px; height: 25px;
-      border: 1px solid #999;
-      background-color: #fff;
-      color: #555;
-      font-size: 20px;
-      padding: 10px;
-      text-align: center;
-      line-height: 25px;
-      margin-right: 10px;
-      margin-bottom: 10px;
-    }
-
-    .lottery-nums .selected{
-      background-color: green;
-      color: #fff;
-    }
-
-    .lottery-nums .highlight{
-      background-color: red;
-      color: #fff;
-    }
-
-    .lottery-nums .selected.highlight{
-      background-color: yellow;
-      color: #333;
-    }
+    body{height:100vh;display:flex;justify-content:center;align-items:center;}
+    .wrap{ padding:1em;}
+    button{margin:10px auto;width:100px;padding:6px 20px;font-size:20px;font-weight:bold;}
+    .lottery-nums{max-width:440px;display:flex;flex-wrap:wrap;margin:8px 0;}
+    .lottery-nums > div{width:40px;height:40px;text-align:center;line-height:40px;border:1px solid #000;margin:2px;cursor:pointer;}
+    .lottery-result,.lottery-select,.lottery-winning{font-size:20px;font-weight:bold;margin:15px 0;}
+    .lottery-winning span{color:red;}
+    .lottery-nums .selected{background-color:green;color:#fff;}
+    .lottery-nums .highlight{background-color:red;color:#fff;}
+    .lottery-nums .selected.highlight{background-color:yellow;color:#333;}
   </style>
 </head>
 <body>
 
-<input type="text">
-
 <div class="wrap">
-
-    <div class="lottery-nums"></div>
-    <div class="lottery-result">開獎號碼: <span></span></div>
-
+  
+  <h2>請選6個號碼</h2>
+	<div class="lottery-nums"></div>
+	<div class="lottery-select">選擇號碼:<span></span></div>
+  <div class="lottery-result">開獎號碼:<span></span></div>
+  <div class="lottery-winning">中獎號碼：<span></span></div>
     <p>
       <button class="btn-lottery">兌獎</button>
       <button class="reset">重設</button>
@@ -77,22 +48,77 @@
   for(i = 1; i < 50; i++ ){
     $('.lottery-nums').append('<div>' + i + '</div>');
   }
-
+	  
+  let select = [];
+  let result = [];
+	  
   // 1. 為數字按鈕加入事件
   $('.lottery-nums div').on('click', function(){
+	  let num = Number($(this).text());
+	  if(select.indexOf(num)===-1){
+			$(this).addClass('selected');
+			select.push(num);
+		}else{
+			alert('重複選號');
+		}
+
+		if(select.length>=7){
+			$(this).removeClass('selected');
+			select.pop(num);
+			alert('只能選6個號碼')
+		}
+
+		$('.lottery-select span').text(select);
 
   });
 
   // 重設按鈕
-  $('.reset').on('click', function(){
-
+$('.reset').on('click', function(){
+	select.length= 0;
+	result.length= 0;
+	$('.lottery-nums div').removeClass('selected highlight');
+	$('.lottery-select span,.lottery-result span,.lottery-winning span').empty();
   });
 
 
   // 兌獎按鈕
   $('.btn-lottery').on('click', function(){
-
-
+		if(select.length<6){
+			alert("請選取6個號碼")
+		}else{
+			let i;
+			while(result.length<6){
+				i=Math.floor(Math.random()*49)+1;
+				if(result.indexOf(i)===-1){
+					result.push(i);
+				}
+			}
+			$('.lottery-nums div').each(function(idx,el){
+				let nums = Number($(el).text());
+				if(result.indexOf(nums)>-1){
+					$(el).addClass('highlight');
+				}else{
+					$(el).removeClass('highlight');
+				}
+			});
+       //中獎號碼
+      let winning = [];
+      let a;
+      let b;
+      for(a=0;a<select.length;a++){
+        for(b=0;b<result.length;b++){
+          if(select[a]===result[b]){
+            winning.push(select[a]);
+          }
+        }
+      }
+      if(winning.length === 0){
+        $('.lottery-winning span').text('未中獎');
+      }else{
+        $('.lottery-winning span').text(winning);
+      }
+		}
+		$('.lottery-result span').text(result);
   });
 
   </script>
